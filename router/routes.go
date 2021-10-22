@@ -11,7 +11,7 @@ func sayhi(c *fiber.Ctx) error{
 
 func SetUpRoute(app *fiber.App){
 	app.Get("/", sayhi)
-
 	app.Post("/signup", controllers.CreateUser)
 	app.Post("/signin", controllers.Signin)
+	app.Get("/getProfile",controllers.AuthorizationRequired(), controllers.GetUserProfile)
 }
