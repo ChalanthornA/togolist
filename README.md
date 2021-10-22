@@ -1,0 +1,2 @@
+# katradebutgo
+for learn golang
