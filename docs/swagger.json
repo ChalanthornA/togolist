@@ -1,0 +1,37 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample swagger for Katrade",
+        "title": "Katrade Api",
+        "contact": {
+            "name": "Katrade Backend",
+            "email": "youremail@provider.com"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "securityDefinitions":{
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "basePath": "/",
+    "paths": {
+        "/sayhi": {
+            "get": {
+                "description": "LetKatrade say hi",
+                "summary": "SayHi",
+                "security":{
+                    "Bearer": []
+                },
+                "responses": {
+                    "200": {
+                        "description": "Will send `Authenticated`"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,18 +1,17 @@
-package controllers
+package controller
 
 import (
 	"fmt"
 	"log"
 	"os"
 	"time"
-
+	// "strconv"
 	"github.com/ChalanthornA/katradebutgo/config"
 	"github.com/ChalanthornA/katradebutgo/entity"
 	"github.com/ChalanthornA/katradebutgo/types"
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -37,31 +36,21 @@ func CreateUser(c *fiber.Ctx) error{
             "message": err,
         })
 	}
-	if err := config.DB.Where("email = ?", user.Email).First(&queryUser).Error; err == nil{
+	if err := config.DB.Where("username = ?", user.Username).First(&queryUser).Error; err == nil{
 		fmt.Printf("%+v\n", queryUser)
 		return c.Status(400).JSON(&fiber.Map{
 			"success": false,
-			"message": "This email is already used",
+			"message": "This username is already used",
 		})
 	} 
 	hashPassword, _ := HashPassword(user.Password)
 	newUser := entity.User{
-		ID : uuid.NewV4(),
-		Name: user.Name,
-		Email: user.Email,
+		Firstname: user.Firstname,
+		Lastname: user.Lastname,
+		Username: user.Username,
 		Password: hashPassword,
 	}
 	config.DB.Create(&newUser)
-
-	// res, err := database.DB.Query("INSERT INTO users (id, name, email, password) VALUES ($1, $2, $3, $4)", 1, user.Name, user.Email, user.Password)
-	// if err != nil {
-    //     c.Status(500).JSON(&fiber.Map{
-    //         "success": false,
-    //         "message": err,
-    //     })
-    //     return nil
-    // }
-	// log.Println(res)
 	c.Status(200).JSON(&fiber.Map{
 		"success": true,
 	})
@@ -78,7 +67,8 @@ func Signin(c *fiber.Ctx) error{
             "message": err,
         })
 	}
-	if err := config.DB.Where("email = ?", loginForm.Email).First(&user).Error; err != nil{
+	fmt.Printf("%v\n", loginForm);
+	if err := config.DB.Where("username = ?", loginForm.Username).First(&user).Error; err != nil{
 		return c.Status(400).JSON(&fiber.Map{
 			"success": false,
 			"message": "Cannot find user",
@@ -86,7 +76,7 @@ func Signin(c *fiber.Ctx) error{
 	}
 	result := CompareHashPassword(user.Password, loginForm.Password);
 	if result{
-		accessToken, err := CreateToken(user.ID, user.Name)
+		accessToken, err := CreateToken(user.ID, user.Firstname)
 		if err != nil{
 			return c.Status(400).JSON(&fiber.Map{
 				"success": false,
@@ -104,12 +94,12 @@ func Signin(c *fiber.Ctx) error{
 	})
 }
 
-func CreateToken(uid uuid.UUID, name string) (string, error){
+func CreateToken(uid int64, name string) (string, error){
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["sub"] = uid
     claims["name"] = name
-    claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+    claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 	secret := os.Getenv("SECRET");
 	accessToken, err := token.SignedString([]byte(secret))
 	return accessToken, err;
@@ -144,19 +134,35 @@ func AuthorizationRequired() fiber.Handler {
     })
 }
 
-func GetUserProfile(c *fiber.Ctx) error{
+func GetIdFromToken(c *fiber.Ctx) float64{
 	user := c.Locals("user").(*jwt.Token)
     claims := user.Claims.(jwt.MapClaims)
-    sub := claims["sub"].(string)
-	queryUser := new(entity.User)
-	if err := config.DB.Where("id = ?", sub).First(&queryUser).Error; err == nil{
+    id := claims["sub"].(float64)
+	return id;
+}
+
+func GetUserProfile(c *fiber.Ctx) error{
+	id := GetIdFromToken(c)
+	queryUser, err := GetUserById(id);
+	if err == nil{
 		return c.Status(200).JSON(&fiber.Map{
 			"success": true,
 			"message": queryUser,
 		})
 	}
 	c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "sub": sub,
+		"success": false,
+        "sub": id,
     })
 	return nil;
+}
+
+func GetUserById(id float64) (entity.User, error){
+	uid := int(id)
+	queryUser := new(entity.User)
+	var err error;
+	if err = config.DB.Where("id = ?", uid).First(&queryUser).Error; err == nil {
+		return *queryUser, err
+	}
+	return *queryUser, err
 }

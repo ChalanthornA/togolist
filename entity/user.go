@@ -1,12 +1,11 @@
 package entity
 
-import (
-	"github.com/satori/go.uuid"
-)
+import ()
 
 type User struct{
-	ID uuid.UUID `gorm:"type:uuid;primary_key;"`
-	Name string `json:"name"`
-	Email string `json:"email"`
+	ID int64 `json:"id" gorm:"primaryKey;autoIncrement:true"`
+	Firstname string `json:"firstname"`
+	Lastname string `json:"lastname"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }

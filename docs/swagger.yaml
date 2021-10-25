@@ -1,0 +1,18 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: youremail@provider.com
+    name: Katrade Backend
+  description: This is a sample swagger for Katrade
+  title: Katrade Api
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: LetKatrade say hi
+      responses:
+        "200":
+          description: ""
+      summary: SayHi
+swagger: "2.0"
