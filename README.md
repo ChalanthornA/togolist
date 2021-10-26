@@ -1,2 +1,2 @@
-# katradebutgo
+# togolist
 for learn golang
