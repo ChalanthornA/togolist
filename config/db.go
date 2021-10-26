@@ -20,7 +20,6 @@ func Connect() *gorm.DB{
 	}
 	var err error;
 	dsn := os.Getenv("DSN")
-	fmt.Printf("this is %s\n", dsn)
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
