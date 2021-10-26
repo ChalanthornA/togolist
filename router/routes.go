@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/ChalanthornA/katradebutgo/controller"
+	"github.com/ChalanthornA/togolist/controller"
 )
 
 // SayHi godoc

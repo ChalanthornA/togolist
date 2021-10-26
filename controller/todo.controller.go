@@ -4,9 +4,9 @@ import (
 	"log"
 	"strconv"
 	"time"
-	"github.com/ChalanthornA/katradebutgo/config"
-	"github.com/ChalanthornA/katradebutgo/entity"
-	"github.com/ChalanthornA/katradebutgo/types"
+	"github.com/ChalanthornA/togolist/config"
+	"github.com/ChalanthornA/togolist/entity"
+	"github.com/ChalanthornA/togolist/types"
 	"github.com/gofiber/fiber/v2"
 )
 

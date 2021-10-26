@@ -3,8 +3,8 @@ package controller
 import (
 	"log"
 	"fmt"
-	"github.com/ChalanthornA/katradebutgo/config"
-	"github.com/ChalanthornA/katradebutgo/entity"
+	"github.com/ChalanthornA/togolist/config"
+	"github.com/ChalanthornA/togolist/entity"
 	"github.com/gofiber/fiber/v2"
 )
 

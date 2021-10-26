@@ -4,10 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	// "log"
 	// "github.com/ChalanthornA/katradebutgo/database"
-	"github.com/ChalanthornA/katradebutgo/router"
-	"github.com/ChalanthornA/katradebutgo/config"
+	"github.com/ChalanthornA/togolist/router"
+	"github.com/ChalanthornA/togolist/config"
 	swagger "github.com/arsmn/fiber-swagger/v2"
-	_ "github.com/ChalanthornA/katradebutgo/docs"
+	_ "github.com/ChalanthornA/togolist/docs"
 )
 
 

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/ChalanthornA/katradebutgo/entity"
+	"github.com/ChalanthornA/togolist/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
