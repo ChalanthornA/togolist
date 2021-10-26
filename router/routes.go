@@ -18,12 +18,16 @@ func sayhi(c *fiber.Ctx) error{
 
 func SetUpRoute(app *fiber.App){
 	app.Get("/", sayhi)
-	app.Post("/signup", controller.CreateUser)
-	app.Post("/signin", controller.Signin)
-	app.Use(controller.AuthorizationRequired())
-	app.Get("/getProfile", controller.GetUserProfile)
-	app.Post("/createNewInv", controller.CreateNewInventory)
-	app.Get("/getUserInv", controller.GetAllUserInventory)
-	app.Post("/createNewTodo", controller.CreateTodo)
-	app.Get("/getTodo", controller.GetUserTodo)
+
+	auth := app.Group("/auth")
+	auth.Post("/signup", controller.CreateUser)
+	auth.Post("/signin", controller.Signin)
+	auth.Get("/getProfile", controller.AuthorizationRequired(), controller.GetUserProfile)
+
+	todo := app.Group("/todo", controller.AuthorizationRequired())
+	todo.Post("/createNewInv", controller.CreateNewInventory)
+	todo.Post("/createNewTodo", controller.CreateTodo)
+	todo.Get("/getTodo", controller.GetUserTodo)
+	todo.Delete("/deleteTodo/:id", controller.DeleteTodo)
+	todo.Patch("/updateTodo", controller.UpdateUserTodoList)
 }

@@ -18,13 +18,8 @@ func Connect() *gorm.DB{
 		log.Fatal(errEnv)
 		log.Fatalf("Error loading .env file")
 	}
-	user := os.Getenv("USER");
-	dbname := os.Getenv("DBNAME")
-	password := os.Getenv("PASSWORD");
-	port := os.Getenv("PORT");
-	host := os.Getenv("HOST")
 	var err error;
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", host, user, password, dbname, port)
+	dsn := os.Getenv("DSN")
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {

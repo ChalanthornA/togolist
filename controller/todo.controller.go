@@ -2,9 +2,11 @@ package controller
 
 import (
 	"log"
+	"strconv"
 	"time"
 	"github.com/ChalanthornA/katradebutgo/config"
 	"github.com/ChalanthornA/katradebutgo/entity"
+	"github.com/ChalanthornA/katradebutgo/types"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,8 +22,7 @@ func CreateTodo(c *fiber.Ctx) error{
 	}
 	bodyTodo := new(entity.Todo)
 	if err := c.BodyParser(&bodyTodo); err != nil {
-		log.Fatal(err)
-		c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+		c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
             "success": false,
             "message": err,
         })
@@ -29,7 +30,7 @@ func CreateTodo(c *fiber.Ctx) error{
 	newTodo := entity.Todo{
 		Todo: bodyTodo.Todo,
 		Create: time.Now(),
-		User: queryUser,
+		UserRefer: queryUser.ID,
 	}
 	config.DB.Create(&newTodo)
 	c.Status(fiber.StatusOK).JSON(&fiber.Map{
@@ -56,12 +57,74 @@ func GetUserTodo(c *fiber.Ctx) error{
 	}
 	c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"success": true,
+		"Name": queryUser.Name,
 		"TodoList": queryTodo,
 	})
 	return nil
 }
 
 func DeleteTodo(c *fiber.Ctx) error{
+	userId := int64(GetIdFromToken(c))
+	deleteId, err := strconv.Atoi(c.Params("id"))
+	if err != nil{
+		log.Fatal(err)
+	}
+	queryTodo := new(entity.Todo)
+	if err := config.DB.First(&queryTodo, deleteId).Error; err != nil {
+		return c.Status(400).JSON(&fiber.Map{
+			"success": false,
+			"message": "Can't find this todo.",
+		})
+	}
+	if queryTodo.UserRefer == userId {
+		if err := config.DB.Delete(&entity.Todo{}, deleteId).Error; err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+				"success": false,
+			})
+		}
+	}else{
+		return c.Status(400).JSON(&fiber.Map{
+			"success": false,
+			"message": "This is not your todo.",
+		})
+	}
+	c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"success": true,
+	})
+	return nil
+}
+
+func UpdateUserTodoList(c *fiber.Ctx) error{
+	userId := int64(GetIdFromToken(c))
+	updateMessage := new(types.UpdateMessage)
+	if err := c.BodyParser(&updateMessage); err != nil{
+		c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+            "success": false,
+            "message": err,
+        })
+	}
+	queryTodo := new(entity.Todo)
+	if err := config.DB.First(&queryTodo, updateMessage.ID).Error; err != nil {
+		return c.Status(400).JSON(&fiber.Map{
+			"success": false,
+			"message": "Can't find this todo.",
+		})
+	}
+	if userId == queryTodo.UserRefer {
+		if err := config.DB.Model(&entity.Todo{}).Where("id = ?", updateMessage.ID).Update("todo", updateMessage.UpdateMessage).Error; err != nil{
+			return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+				"success": false,
+			})
+		}
+	}else{
+		return c.Status(400).JSON(&fiber.Map{
+			"success": false,
+			"message": "This is not your todo.",
+		})
+	}
+	c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"success": true,
+	})
 	return nil
 }
 

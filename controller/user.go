@@ -18,12 +18,12 @@ import (
 
 func HashPassword(password string) (string, error){
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err;
+	return string(bytes), err
 }
 
 func CompareHashPassword(hash string, password string) bool{
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil;
+	return err == nil
 }
 
 func CreateUser(c *fiber.Ctx) error{
@@ -45,8 +45,7 @@ func CreateUser(c *fiber.Ctx) error{
 	} 
 	hashPassword, _ := HashPassword(user.Password)
 	newUser := entity.User{
-		Firstname: user.Firstname,
-		Lastname: user.Lastname,
+		Name: user.Name,
 		Username: user.Username,
 		Password: hashPassword,
 	}
@@ -54,7 +53,7 @@ func CreateUser(c *fiber.Ctx) error{
 	c.Status(200).JSON(&fiber.Map{
 		"success": true,
 	})
-	return nil;
+	return nil
 }
 
 func Signin(c *fiber.Ctx) error{
@@ -67,7 +66,6 @@ func Signin(c *fiber.Ctx) error{
             "message": err,
         })
 	}
-	fmt.Printf("%v\n", loginForm);
 	if err := config.DB.Where("username = ?", loginForm.Username).First(&user).Error; err != nil{
 		return c.Status(400).JSON(&fiber.Map{
 			"success": false,
@@ -76,7 +74,7 @@ func Signin(c *fiber.Ctx) error{
 	}
 	result := CompareHashPassword(user.Password, loginForm.Password);
 	if result{
-		accessToken, err := CreateToken(user.ID, user.Firstname)
+		accessToken, err := CreateToken(user.ID, user.Name)
 		if err != nil{
 			return c.Status(400).JSON(&fiber.Map{
 				"success": false,
@@ -102,7 +100,7 @@ func CreateToken(uid int64, name string) (string, error){
     claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 	secret := os.Getenv("SECRET");
 	accessToken, err := token.SignedString([]byte(secret))
-	return accessToken, err;
+	return accessToken, err
 }
 
 func AuthError(c *fiber.Ctx, e error) error {
@@ -138,7 +136,7 @@ func GetIdFromToken(c *fiber.Ctx) float64{
 	user := c.Locals("user").(*jwt.Token)
     claims := user.Claims.(jwt.MapClaims)
     id := claims["sub"].(float64)
-	return id;
+	return id
 }
 
 func GetUserProfile(c *fiber.Ctx) error{
@@ -154,13 +152,13 @@ func GetUserProfile(c *fiber.Ctx) error{
 		"success": false,
         "sub": id,
     })
-	return nil;
+	return nil
 }
 
 func GetUserById(id float64) (entity.User, error){
 	uid := int(id)
 	queryUser := new(entity.User)
-	var err error;
+	var err error
 	if err = config.DB.Where("id = ?", uid).First(&queryUser).Error; err == nil {
 		return *queryUser, err
 	}
