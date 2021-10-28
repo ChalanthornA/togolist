@@ -2,12 +2,11 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	// "log"
-	// "github.com/ChalanthornA/katradebutgo/database"
 	"github.com/ChalanthornA/togolist/router"
 	"github.com/ChalanthornA/togolist/config"
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	_ "github.com/ChalanthornA/togolist/docs"
+	"os"
 )
 
 
@@ -33,5 +32,11 @@ func main(){
 
 	router.SetUpRoute(app);
 
-	app.Listen(":8080")
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	app.Listen(":" + port)
 }
