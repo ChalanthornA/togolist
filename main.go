@@ -7,6 +7,7 @@ import (
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	_ "github.com/ChalanthornA/togolist/docs"
 	"os"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 
@@ -24,6 +25,7 @@ func main(){
 	config.Connect();
 
 	app := fiber.New();
+	app.Use(cors.New())
 
 	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
 		URL:         "/swagger/doc.json",
