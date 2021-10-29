@@ -2,5 +2,6 @@ package types
 
 type UpdateMessage struct{
 	ID int `json:"id"` 
-	UpdateMessage string `json:"update_message"`
+	Todo string `json:"todo"`
+	Description string `json:"description"`
 }

@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"time"
+
 	"github.com/ChalanthornA/togolist/config"
 	"github.com/ChalanthornA/togolist/entity"
 	"github.com/ChalanthornA/togolist/types"
@@ -29,6 +31,7 @@ func CreateTodo(c *fiber.Ctx) error{
 	}
 	newTodo := entity.Todo{
 		Todo: bodyTodo.Todo,
+		Description: bodyTodo.Description,
 		Create: time.Now(),
 		UserRefer: queryUser.ID,
 	}
@@ -111,10 +114,25 @@ func UpdateUserTodoList(c *fiber.Ctx) error{
 		})
 	}
 	if userId == queryTodo.UserRefer {
-		if err := config.DB.Model(&entity.Todo{}).Where("id = ?", updateMessage.ID).Update("todo", updateMessage.UpdateMessage).Error; err != nil{
-			return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
-				"success": false,
-			})
+		fmt.Printf("%s\n", updateMessage.Description)
+		if updateMessage.Todo != "" && updateMessage.Description != ""{
+			if err := config.DB.Model(&entity.Todo{}).Where("id = ?", updateMessage.ID).Updates(entity.Todo{Todo: updateMessage.Todo, Description: updateMessage.Description}).Error; err != nil{
+				return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+					"success": false,
+				})
+			}
+		}else if updateMessage.Todo != "" {
+			if err := config.DB.Model(&entity.Todo{}).Where("id = ?", updateMessage.ID).Update("todo", updateMessage.Todo).Error; err != nil{
+				return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+					"success": false,
+				})
+			}
+		}else {
+			if err := config.DB.Model(&entity.Todo{}).Where("id = ?", updateMessage.ID).Update("description", updateMessage.Description).Error; err != nil{
+				return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+					"success": false,
+				})
+			}
 		}
 	}else{
 		return c.Status(400).JSON(&fiber.Map{
